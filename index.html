@@ -2,515 +2,276 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fab 테스트 대시보드</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>소재 수입검사 대시보드</title>
 <style>
-:root{
-  color-scheme:light;
-  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#6b6963;
-  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10); --wash:rgba(11,11,11,.05);
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
-  --crit:#d03b3b; --crit-ink:#b42d2d; --crit-wash:rgba(208,59,59,.10); --crit-band:rgba(208,59,59,.12);
-  --good-ink:#006300; --bar:#2a78d6;
-}
-@media (prefers-color-scheme:dark){
-  :root:where(:not([data-theme="light"])){
-    color-scheme:dark;
-    --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#a09e96;
-    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --wash:rgba(255,255,255,.07);
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
-    --crit:#e66767; --crit-ink:#ff8a8a; --crit-wash:rgba(230,103,103,.14); --crit-band:rgba(230,103,103,.18);
-    --good-ink:#0ca30c; --bar:#3987e5;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#a09e96;
-  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --wash:rgba(255,255,255,.07);
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
-  --crit:#e66767; --crit-ink:#ff8a8a; --crit-wash:rgba(230,103,103,.14); --crit-band:rgba(230,103,103,.18);
-  --good-ink:#0ca30c; --bar:#3987e5;
-}
+:root{color-scheme:light;
+ --bg:#f4f3f0;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#807f7a;--line:#e3e2dd;--grid:#ecebe6;
+ --s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;
+ --good:#0ca30c;--warn:#fab219;--crit:#d03b3b;--warn-ink:#3a2a00;
+ --ok-tint:42,120,214;}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){color-scheme:dark;
+ --bg:#121211;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#97968e;--line:#33332f;--grid:#2a2a27;
+ --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--ok-tint:57,135,229;}}
+:root[data-theme="dark"]{color-scheme:dark;
+ --bg:#121211;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#97968e;--line:#33332f;--grid:#2a2a27;
+ --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--ok-tint:57,135,229;}
 *{box-sizing:border-box}
-body{margin:0;background:var(--page);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;font-size:14px;line-height:1.5}
-.wrap{max-width:1520px;margin:0 auto;padding:24px 16px 48px}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
-.main{min-width:0}
-@media(max-width:1100px){.layout{grid-template-columns:1fr}.chat{position:static!important;height:560px!important}}
-.chat{position:sticky;top:16px;height:calc(100vh - 32px);min-height:480px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.chat h2{padding:14px 16px 0}
-.chat .hint{padding:0 16px;margin-bottom:8px}
-.chat details{margin:0 16px 8px;border:1px solid var(--border);border-radius:8px;padding:6px 10px}
-.chat summary{cursor:pointer;font-size:13px;color:var(--ink2)}
-.chat label{display:block;font-size:12px;color:var(--ink2);margin:8px 0 2px}
-.chat input[type=text],.chat input[type=password],.chat textarea{width:100%;font:inherit;font-size:13px;color:var(--ink);background:var(--page);border:1px solid var(--border);border-radius:6px;padding:6px 8px}
-.chat .warn{font-size:11px;color:var(--muted);margin:6px 0 4px}
-.msgs{flex:1;overflow-y:auto;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:92%;padding:8px 10px;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:13px}
-.msg.u{align-self:flex-end;background:var(--bar);color:#fff}
-.msg.a{align-self:flex-start;background:var(--wash)}
-.msg.e{align-self:flex-start;background:var(--crit-wash);border:1px solid var(--crit);color:var(--crit-ink)}
-.sugg{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 8px}
-.sugg .chip{font-size:12px;padding:3px 10px;text-align:left}
-.cin{display:flex;gap:8px;padding:10px 16px 14px;border-top:1px solid var(--grid)}
-.cin textarea{resize:none;height:44px}
-.cin button{white-space:nowrap}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-h1{font-size:22px;margin:0 0 4px}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif}
+.wrap{max-width:1600px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:22px;margin:0 0 2px}
 .sub{color:var(--ink2);font-size:13px}
-button{font:inherit;color:inherit;cursor:pointer}
-.btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px}
-.btn:hover{background:var(--wash)}
-.alert{display:flex;gap:12px;align-items:flex-start;background:var(--crit-wash);border:1px solid var(--crit);border-radius:12px;padding:12px 16px;margin-bottom:16px}
-.alert b{color:var(--crit-ink)}
-.alert .ic{font-size:20px;line-height:1.2}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
-.kpi .l{color:var(--ink2);font-size:12px}
-.kpi .v{font-size:28px;font-weight:600;margin:2px 0}
-.kpi .d{color:var(--muted);font-size:12px}
-.kpi.bad{border-color:var(--crit)}
-.kpi.bad .v{color:var(--crit-ink)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-@media(max-width:820px){.grid2{grid-template-columns:1fr}}
-h2{font-size:16px;margin:0 0 2px}
-.hint{color:var(--muted);font-size:12px;margin:0 0 12px}
-.filters{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:8px 0 12px}
-.fg{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.fg .lab{color:var(--ink2);font-size:12px;margin-right:2px}
-.chip{background:transparent;border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
-.chip:hover{background:var(--wash)}
-.chip[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
-.chip .sw{width:10px;height:10px;border-radius:50%;display:inline-block}
-.chip[aria-pressed="false"] .sw{opacity:.3}
-.chartbox{position:relative}
-svg text{font-family:inherit}
-.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--axis);border-radius:8px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);min-width:150px;z-index:5;display:none}
-.tip .t{font-weight:600;margin-bottom:4px}
-.tip .r{display:flex;align-items:center;gap:6px;justify-content:space-between}
-.tip .r span.n{display:flex;align-items:center;gap:6px}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-top:6px;align-items:center}
-.legend .band{width:14px;height:10px;background:var(--crit-band);border:1px solid var(--crit);display:inline-block;border-radius:2px}
-.legend .ring{width:10px;height:10px;border:2px solid var(--crit);border-radius:50%;display:inline-block}
-.legend .dash{width:16px;border-top:2px dashed var(--crit);display:inline-block}
+button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 2px}
+.card .note{color:var(--ink2);font-size:12.5px;margin:0 0 12px}
+.summary{border-left:4px solid var(--crit)}
+.summary ol{margin:6px 0 0;padding-left:20px}
+.summary li{margin:3px 0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi .l{color:var(--ink2);font-size:12.5px}
+.kpi .v{font-size:30px;font-weight:700;line-height:1.2}
+.kpi .d{font-size:12px;color:var(--ink2)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.brow{display:grid;grid-template-columns:70px 1fr 90px;gap:10px;align-items:center;margin:10px 0}
+.brow .nm{font-weight:600}
+.track{position:relative;height:22px;background:var(--grid);border-radius:4px}
+.bar{height:100%;border-radius:0 4px 4px 0}
+.refline{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--ink2)}
+.reflbl{position:absolute;top:-20px;transform:translateX(-50%);font-size:11px;color:var(--ink2);white-space:nowrap}
+.stack{display:flex;height:22px;gap:2px;border-radius:4px;overflow:hidden;background:var(--grid)}
+.stack div{height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin:0 0 6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.sw.w{background:var(--warn);color:var(--warn-ink)}.sw.c{background:var(--crit);color:#fff}.sw.o{background:rgba(var(--ok-tint),.28)}
+.hm{overflow-x:auto}
+.hmg{display:grid;gap:2px;min-width:640px}
+.hh{font-size:11.5px;color:var(--ink2);text-align:center;padding:2px 0;font-weight:600}
+.hl{font-size:12px;color:var(--ink2);display:flex;align-items:center;padding-right:6px}
+.cell{height:24px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink);cursor:default}
+.cell.w{background:var(--warn);color:var(--warn-ink);font-weight:700}
+.cell.c{background:var(--crit);color:#fff;font-weight:700}
+.cell:hover{outline:2px solid var(--ink);outline-offset:1px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
-th{color:var(--ink2);font-weight:600;font-size:12px}
-th:first-child,td:first-child,th.l,td.l{text-align:left}
-tr.bad td{background:var(--crit-wash)}
-.scroll{overflow-x:auto}
-.st-bad{color:var(--crit-ink);font-weight:600}
-.st-ok{color:var(--good-ink)}
-.heat{display:grid;grid-template-columns:80px repeat(3,1fr);gap:6px}
-.heat .h{font-size:12px;color:var(--ink2);text-align:center;align-self:end}
-.heat .rl{font-size:12px;color:var(--ink2);align-self:center}
-.cell{border-radius:8px;padding:10px 6px;text-align:center;min-height:64px;display:flex;flex-direction:column;justify-content:center;border:2px solid transparent}
-.cell .v{font-size:18px;font-weight:600}
-.cell .s{font-size:11px;opacity:.9}
-.cell.bad{border-color:var(--crit);box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--crit)}
-.bars{display:flex;align-items:flex-end;gap:10px;height:200px;padding-top:24px;border-bottom:1px solid var(--axis)}
-.bcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
-.bar{width:100%;max-width:56px;border-radius:4px 4px 0 0;background:var(--bar)}
-.bar.bad{background:var(--crit)}
-.bval{font-size:12px;font-weight:600;margin-bottom:4px}
-.bval.bad{color:var(--crit-ink)}
-.blabs{display:flex;gap:10px;margin-top:6px}
-.blabs div{flex:1;text-align:center;font-size:12px;color:var(--ink2)}
-.blabs small{display:block;color:var(--muted)}
-ul.ins{margin:0;padding-left:18px}
-ul.ins li{margin-bottom:6px}
-.tablewrap{margin-top:10px}
-footer{color:var(--muted);font-size:12px;margin-top:24px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--ink2);font-weight:600;font-size:12.5px;white-space:nowrap}
+td.n{text-align:right;white-space:nowrap}
+.tbl{overflow-x:auto}
+.tag{display:inline-flex;align-items:center;gap:5px;font-weight:600;white-space:nowrap}
+.tag i{font-style:normal;width:16px;height:16px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+.tag.c i{background:var(--crit);color:#fff}.tag.w i{background:var(--warn);color:var(--warn-ink)}.tag.g i{background:var(--good);color:#fff}
+.acts label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.acts input{margin-top:4px;width:16px;height:16px}
+.acts input:checked+span{color:var(--muted);text-decoration:line-through}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);padding:7px 10px;border-radius:8px;font-size:12px;line-height:1.5;display:none;z-index:9;max-width:260px}
+footer{color:var(--muted);font-size:12px;margin-top:8px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;align-items:start}
+.layout>main{min-width:0}
+.chat{position:sticky;top:12px;height:calc(100vh - 24px);min-height:460px;display:flex;flex-direction:column;margin-bottom:0}
+.chat details{margin:6px 0 8px;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.chat summary{cursor:pointer;font-weight:600;font-size:13px}
+.chat label{display:block;font-size:12px;color:var(--ink2);margin-top:8px}
+.chat input,.chat textarea{width:100%;font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin-top:3px}
+.chat textarea{resize:none}
+.chat .hint{font-size:11.5px;color:var(--muted);margin:8px 0 0}
+.log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px;min-height:120px}
+.msg{padding:8px 11px;border-radius:10px;max-width:92%;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.55}
+.msg.user{align-self:flex-end;background:var(--ink);color:var(--surface)}
+.msg.bot{align-self:flex-start;background:var(--grid)}
+.msg.err{background:transparent;border:1px solid var(--crit);color:var(--crit)}
+.sugg{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.sugg button{font-size:12px;padding:4px 9px;border-radius:999px}
+#cb-form{display:flex;gap:8px;align-items:flex-end}
+#cb-form button{white-space:nowrap}
+#cb-form button:disabled{opacity:.5;cursor:default}
+@media (max-width:1100px){.layout{grid-template-columns:1fr}.chat{position:static;height:600px}}
+@media (max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="wrap"><div class="layout"><div class="main">
-  <header>
-    <div>
-      <h1>Fab 테스트 lot 대시보드</h1>
-      <div class="sub" id="sub"></div>
-    </div>
-    <button class="btn" id="theme" type="button">테마 전환</button>
-  </header>
+<div class="wrap">
+<header>
+ <div><h1>소재 수입검사 대시보드</h1>
+ <div class="sub">소재사 4곳(애플·키위·망고·오렌지) × LOT A·B·C × 분석항목 AA1~AA20 (ppm) · PoC용 가상 데이터</div></div>
+ <button id="theme" type="button">화면 모드 전환</button>
+</header>
 
-  <div class="alert" id="alert" role="alert"></div>
-  <div class="kpis" id="kpis"></div>
+<div class="layout"><main>
+<section class="card summary" aria-label="요약"><h2>요약</h2><ol id="sum"></ol></section>
+<section class="kpis" id="kpis" aria-label="핵심 지표"></section>
 
-  <div class="card">
-    <h2>일별 추이 — 헤드별 비교</h2>
-    <p class="hint">설비를 고르고 지표를 바꿔 헤드끼리 비교하세요. 붉은 영역은 기준선을 넘은 구간입니다.</p>
-    <div class="filters">
-      <div class="fg" id="fEq"><span class="lab">설비</span></div>
-      <div class="fg" id="fMet"><span class="lab">지표</span></div>
-      <div class="fg" id="fHead"><span class="lab">헤드</span></div>
-      <button class="btn" id="tblBtn" type="button" aria-pressed="false">표로 보기</button>
-    </div>
-    <div class="chartbox" id="chartbox"><svg id="svg" role="img" aria-label="일별 추이 선 그래프"></svg><div class="tip" id="tip"></div></div>
-    <div class="legend" id="legend"></div>
-    <div class="tablewrap scroll" id="tbl" hidden></div>
-  </div>
+<section class="card">
+ <div class="chips" id="chips" role="group" aria-label="소재사 필터"></div>
+ <h2>LOT × 분석항목 판정 지도</h2>
+ <p class="note">칸의 숫자는 규격 상한 대비 사용률(%)입니다. 100%를 넘으면 부적합, 90% 이상이면 주의입니다.</p>
+ <div class="legend"><span><i class="sw o"></i>적합 (진할수록 상한에 가까움)</span><span><i class="sw w">▲</i>주의 (90% 이상)</span><span><i class="sw c">✕</i>부적합 (상한 초과)</span></div>
+ <div class="hm"><div class="hmg" id="hm"></div></div>
+</section>
 
-  <div class="grid2">
-    <div class="card">
-      <h2>설비 × 헤드 불량률 지도</h2>
-      <p class="hint">기간을 바꿔 보세요. 기준(4%) 초과 칸은 붉은 테두리와 ⚠로 표시됩니다.</p>
-      <div class="filters" style="margin-top:0"><div class="fg" id="fPer"><span class="lab">기간</span></div></div>
-      <div class="heat" id="heat"></div>
-    </div>
-    <div class="card">
-      <h2>온도 편차와 불량률</h2>
-      <p class="hint">lot의 |soak − set| 구간별 평균 불량률 (전체 11,160 lot)</p>
-      <div class="bars" id="bars"></div>
-      <div class="blabs" id="blabs"></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:16px">
-    <h2>설비·헤드 조합 요약</h2>
-    <p class="hint">전반기(8/1~8/16)와 후반기(8/17~8/31) 비교</p>
-    <div class="scroll"><table id="combo"></table></div>
-  </div>
-
-  <div class="grid2">
-    <div class="card">
-      <h2>핵심 발견</h2>
-      <ul class="ins" id="ins"></ul>
-    </div>
-    <div class="card">
-      <h2>영향이 확인되지 않은 요인</h2>
-      <ul class="ins">
-        <li><b>제품</b>: 4종의 평균 불량률 차이가 0.03%p 이내입니다.</li>
-        <li><b>프로그램 리비전</b>: PROD_B07의 R15(8/17~, TEST_02)는 R14와 불량률 차이가 크지 않습니다.</li>
-        <li><b>jam 횟수</b>: 불량률과 상관계수 0.01.</li>
-        <li><b>접촉 저항</b>: 상관계수 −0.10으로 약하고 온도 편차를 통한 간접 효과로 보입니다.</li>
-        <li><b>테스트 시간</b>: 상관 없음 (−0.005).</li>
-      </ul>
-    </div>
-  </div>
-  <footer>원본: fab_test_lot_data.csv (11,160 lot, 2026-08-01 ~ 08-31). 이 파일 하나만으로 동작하며 대시보드 자체는 인터넷 연결이 필요 없습니다(챗봇 사용 시에만 API 호출).</footer>
+<div class="grid2">
+ <section class="card"><h2>소재사별 최대 규격 사용률</h2>
+  <p class="note">가장 나쁜 항목 기준입니다. 점선(100%)을 넘으면 규격 초과입니다.</p>
+  <div id="c1" style="padding-top:18px"></div></section>
+ <section class="card"><h2>소재사별 항목 판정 구성</h2>
+  <p class="note">소재사당 60개 값(3 LOT × 20 항목) 중 판정별 건수입니다.</p>
+  <div class="legend"><span><i class="sw o"></i>적합</span><span><i class="sw w">▲</i>주의</span><span><i class="sw c">✕</i>부적합</span></div>
+  <div id="c2"></div></section>
 </div>
-<aside class="chat" aria-label="데이터 질문 챗봇">
-  <h2>데이터 질문 챗봇</h2>
-  <p class="hint">대시보드 데이터를 근거로 답합니다.</p>
-  <details id="cfg" open>
-    <summary>API 설정 (저장되지 않음)</summary>
-    <label for="cModel">model_name</label>
-    <input type="text" id="cModel" autocomplete="off" placeholder="모델 이름">
-    <label for="cBase">base_url</label>
-    <input type="text" id="cBase" autocomplete="off" placeholder="https://…/v1">
-    <label for="cKey">api_key</label>
-    <input type="password" id="cKey" autocomplete="off" placeholder="API 키">
-    <div class="warn">입력값은 이 페이지의 메모리에만 있고 새로고침하면 사라집니다. 질문할 때 질문과 함께 대시보드 데이터 요약, 설비 이력·인수인계 요약, 분석 결과가 입력한 base_url 서버로 전송됩니다.</div>
-  </details>
-  <div class="msgs" id="msgs"><div class="msg a">궁금한 점을 물어보세요. 답변은 대시보드 데이터, 8월 설비 이력·인수인계 요약, 분석 결과만 근거로 합니다.</div></div>
-  <div class="sugg" id="sugg"></div>
-  <div class="cin">
-    <textarea id="cQ" placeholder="질문 입력 (Enter 전송, Shift+Enter 줄바꿈)"></textarea>
-    <button class="btn" id="cSend" type="button">전송</button>
-  </div>
+
+<section class="card"><h2>이상 항목 상세 (주의·부적합)</h2>
+ <p class="note">현재 필터 기준으로 사용률이 높은 순서입니다.</p>
+ <div class="tbl"><table id="tbl"><thead><tr><th>소재사</th><th>LOT</th><th>항목</th><th style="text-align:right">분석값(ppm)</th><th style="text-align:right">상한(ppm)</th><th style="text-align:right">사용률</th><th>판정</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="card"><h2>권고 조치 · 확인란</h2>
+ <p class="note">조치 후 체크하세요. 체크 상태는 이 브라우저에 저장됩니다. 최종 합부 판정은 수입검사 담당자가 확인·승인합니다.</p>
+ <div class="acts" id="acts"></div>
+</section>
+<footer>판정 기준: 규격 상한 초과 = 부적합, 상한의 90% 이상 = 주의. 합격=전 항목 적합, 조건부=주의 포함, 불합격=부적합 포함.</footer>
+</main>
+<aside class="card chat" aria-label="데이터 질문 챗봇">
+ <h2>데이터 질문 챗봇</h2>
+ <p class="note" style="margin:0">이 대시보드의 240개 분석값을 근거로 답합니다.</p>
+ <details id="cb-set" open><summary>연결 설정</summary>
+  <label>model_name<input id="cb-model" autocomplete="off" placeholder="예: gpt-4o-mini"></label>
+  <label>base_url<input id="cb-url" autocomplete="off" placeholder="예: https://api.openai.com/v1"></label>
+  <label>api_key<input id="cb-key" type="password" autocomplete="off" placeholder="sk-..."></label>
+  <p class="hint">OpenAI 호환 방식(base_url + /chat/completions)으로 호출합니다. api_key는 저장하지 않으며 새로고침하면 다시 입력해야 합니다.</p>
+ </details>
+ <div id="cb-log" class="log" aria-live="polite"></div>
+ <div class="sugg" id="cb-sugg"></div>
+ <form id="cb-form"><textarea id="cb-q" rows="2" placeholder="질문을 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)"></textarea><button type="submit" id="cb-send">보내기</button></form>
+ <button type="button" id="cb-clear" style="margin-top:8px;font-size:12px">대화 지우기</button>
 </aside>
-</div></div>
-
+</div>
+</div>
+<div id="tip"></div>
 <script>
-const D = {"days":["08-01","08-02","08-03","08-04","08-05","08-06","08-07","08-08","08-09","08-10","08-11","08-12","08-13","08-14","08-15","08-16","08-17","08-18","08-19","08-20","08-21","08-22","08-23","08-24","08-25","08-26","08-27","08-28","08-29","08-30","08-31"],"split":16,"range":["2026-08-01","2026-08-31"],"combos":[{"eq":"TEST_01","head":"TH_A","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[1.065,0.94,0.947,1.031,0.985,0.908,0.935,0.915,0.955,0.966,0.93,0.911,0.889,0.907,0.995,0.993,0.982,0.971,0.92,1.035,0.939,1.051,1.008,0.947,0.943,0.893,0.978,0.934,0.955,0.985,1.02],"t":[1.45,-4.42,-3.13,0.24,0.54,-0.8,-1.76,-3.79,-1.21,1.56,-0.09,-3.9,-1.81,-3.91,1.73,-0.82,-0.03,-0.44,-0.29,2.52,-3.38,2.91,1.68,-0.03,0.2,-4.06,-0.58,-1.35,0.04,-0.13,1.82],"c":[3396.2,3405.98,3420.2,3433.84,3442.64,3456.05,3471.69,3479.3,3494.23,3505.74,3516.21,3525.87,3289.84,3130.48,3147.52,3151.41,3173.01,3183.35,3195.4,3204.71,3217.42,3229.14,3238.75,3255.56,3267.74,3273.9,3288.3,3299.67,3313.04,3327.14,3337.11],"j":[13,11,18,11,18,16,21,8,17,24,22,13,16,17,9,23,20,20,22,19,20,17,14,16,19,21,14,9,14,17,13]},{"eq":"TEST_01","head":"TH_B","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[0.951,0.958,1.007,0.963,0.93,0.945,0.918,0.91,0.967,0.881,0.908,0.883,0.919,0.922,0.923,0.915,0.964,0.89,0.939,0.925,0.837,0.973,0.897,0.963,0.98,0.978,0.986,1.004,0.935,0.963,0.974],"t":[3.19,1.21,2.19,1.89,0.64,-0.25,-2.65,-0.76,1.56,-0.67,0.3,-1.45,-0.5,-0.6,0.11,0.21,1.38,-1.25,0.11,-3.11,-3.61,0.76,0.7,0.09,1.63,1.56,2.69,3.64,1.14,1.57,1.35],"c":[3501.36,3509.95,3528.87,3390.0,3130.48,3143.08,3155.22,3167.23,3176.87,3186.56,3201.84,3211.64,3226.36,3238.74,3248.98,3261.27,3271.08,3285.19,3299.45,3310.72,3318.84,3332.04,3344.48,3353.42,3366.82,3379.89,3391.72,3405.7,3418.54,3430.66,3436.55],"j":[16,19,23,22,14,8,22,19,21,21,19,19,20,26,17,20,18,18,15,25,13,14,12,22,11,22,13,20,24,13,12]},{"eq":"TEST_01","head":"TH_C","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[1.023,0.927,0.949,0.919,0.915,0.887,1.042,0.867,1.015,0.885,0.898,0.902,0.883,0.872,0.902,0.892,0.985,1.003,0.927,0.954,0.925,0.91,0.864,0.872,0.89,0.863,0.901,0.901,0.906,0.972,0.911],"t":[0.74,0.66,0.26,1.0,2.79,-0.91,4.47,-1.87,0.19,0.0,0.15,-1.42,-1.42,-2.31,-0.6,-0.25,0.07,3.26,0.08,-0.67,-0.79,-2.13,-0.74,-3.36,-1.33,-1.21,-0.76,-2.56,0.2,2.59,0.74],"c":[3661.43,3679.34,3696.63,3473.44,3130.36,3138.48,3153.29,3162.9,3181.06,3187.76,3199.05,3212.52,3223.77,3239.8,3252.75,3260.88,3266.74,3285.01,3295.16,3312.48,3322.69,3335.81,3346.69,3359.4,3368.47,3378.94,3391.43,3408.63,3412.3,3432.42,3442.14],"j":[16,14,13,18,25,13,16,23,16,11,12,15,10,13,13,18,23,14,15,13,7,14,15,18,14,22,15,17,17,19,10]},{"eq":"TEST_02","head":"TH_A","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[0.897,0.911,0.86,0.86,0.983,0.925,0.983,0.979,1.055,1.003,0.921,0.894,0.908,0.921,0.855,0.912,0.99,0.966,0.896,0.883,0.923,0.991,0.865,0.955,0.904,0.981,0.891,0.945,0.958,1.037,0.979],"t":[-3.31,-1.86,-4.88,-3.0,0.37,-0.12,1.54,0.69,3.18,1.18,-0.9,-0.95,-1.17,-2.8,-1.08,-2.91,1.25,0.02,-2.85,-3.18,-1.48,1.85,-3.94,-1.49,-3.34,1.43,-2.3,-1.51,0.28,3.0,0.35],"c":[3365.58,3376.77,3390.54,3400.17,3413.69,3432.2,3441.68,3454.84,3465.01,3473.31,3486.15,3500.11,3512.45,3528.51,3481.7,3129.95,3138.09,3153.3,3162.75,3174.22,3182.9,3197.45,3213.48,3223.91,3241.92,3249.24,3261.78,3273.55,3281.48,3298.44,3311.11],"j":[10,19,16,17,9,9,22,20,13,23,15,16,19,16,13,13,14,19,23,20,14,14,21,19,15,18,14,20,18,13,12]},{"eq":"TEST_02","head":"TH_B","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[0.959,1.029,0.953,1.031,1.048,1.013,0.929,1.038,0.924,0.978,1.044,0.961,0.958,1.028,0.958,1.001,0.95,0.887,1.006,0.972,0.914,1.0,0.958,0.947,0.913,0.977,1.013,0.939,0.986,0.856,0.906],"t":[0.42,3.23,1.01,3.4,4.9,-0.17,-0.56,0.25,-0.88,0.9,3.49,0.41,0.57,2.19,-1.65,1.79,-0.97,-1.29,2.73,-1.3,-1.67,3.1,0.94,2.19,-1.57,0.21,0.69,-1.19,0.35,-4.83,-2.44],"c":[3201.58,3216.76,3231.25,3236.97,3254.73,3263.71,3274.78,3283.14,3296.84,3308.21,3325.16,3334.02,3344.91,3361.32,3372.32,3385.7,3391.52,3401.94,3421.45,3432.81,3445.55,3452.8,3467.15,3479.87,3489.44,3503.14,3512.27,3529.22,3338.9,3133.44,3145.25],"j":[15,16,11,28,17,11,17,17,14,20,16,14,11,17,11,20,23,21,17,9,14,16,14,23,15,19,10,15,18,11,16]},{"eq":"TEST_02","head":"TH_C","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[0.968,0.996,1.015,0.931,0.956,0.985,1.039,1.094,1.01,1.041,0.907,1.029,1.046,1.032,0.95,0.9,1.029,1.028,1.077,1.04,0.968,1.025,1.057,0.981,0.93,0.992,1.021,0.969,0.955,0.927,1.064],"t":[-0.94,-1.49,-0.32,-0.81,-1.81,-1.83,2.31,2.08,1.31,2.89,-3.94,1.97,-0.03,2.43,-1.14,-4.12,0.67,3.1,2.92,0.36,-3.08,-1.93,3.02,-0.66,-2.02,-2.2,-3.12,-1.58,-0.49,-0.62,2.05],"c":[3487.77,3500.46,3509.71,3525.27,3403.96,3128.85,3143.75,3145.21,3162.32,3169.08,3192.43,3202.64,3210.76,3224.05,3236.47,3244.15,3255.65,3274.87,3288.72,3301.88,3311.58,3317.87,3335.86,3345.08,3356.63,3367.65,3381.01,3393.86,3402.3,3421.18,3428.67],"j":[23,15,12,13,20,14,19,18,20,17,13,15,15,15,11,19,18,25,16,16,17,10,12,21,11,12,13,24,20,18,16]},{"eq":"TEST_03","head":"TH_A","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[0.936,0.944,0.972,0.965,0.957,0.935,0.976,1.002,1.045,1.021,1.003,0.963,0.946,1.034,0.956,0.861,0.913,0.92,1.012,1.006,0.913,1.016,0.991,0.968,0.828,1.117,0.995,0.985,0.911,1.02,0.913],"t":[-2.58,-2.71,0.58,-0.35,2.23,0.21,0.68,3.04,1.44,2.13,-1.78,0.04,-0.05,2.99,1.04,-5.25,-0.42,-0.92,1.93,0.9,-0.75,2.09,0.77,-0.1,-4.13,5.63,1.85,-0.16,-1.75,0.86,-0.8],"c":[3419.17,3429.68,3439.94,3448.72,3467.35,3479.03,3491.76,3507.26,3514.0,3526.76,3373.27,3130.56,3138.68,3152.93,3162.8,3178.37,3191.13,3205.8,3210.99,3223.88,3238.7,3248.68,3259.39,3272.14,3283.7,3296.09,3315.39,3318.91,3329.82,3348.32,3355.98],"j":[12,18,14,20,11,12,15,17,9,17,18,18,11,16,16,25,12,17,10,15,16,9,18,20,10,12,11,13,14,17,15]},{"eq":"TEST_03","head":"TH_B","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[0.889,0.897,1.069,0.935,0.952,0.993,0.97,0.936,0.926,0.857,0.984,0.91,1.012,0.899,0.974,0.99,2.614,2.658,2.612,2.643,2.484,2.601,2.579,2.609,2.537,2.47,2.648,2.628,2.604,2.605,2.564],"t":[-1.34,-1.95,5.29,0.1,0.79,3.22,1.08,0.33,-0.47,-3.59,2.09,-0.87,4.05,1.45,0.96,0.7,87.27,87.11,89.09,88.43,82.08,89.37,86.79,86.31,88.39,84.21,88.85,88.42,87.2,87.38,87.35],"c":[3395.28,3408.84,3423.23,3433.66,3441.96,3451.77,3468.98,3477.7,3486.94,3505.62,3516.38,3526.65,3321.86,3134.72,3143.9,3154.96,3164.27,3176.16,3189.26,3202.5,3215.93,3229.98,3240.75,3250.53,3267.05,3273.84,3283.79,3296.64,3307.65,3322.16,3329.37],"j":[11,17,16,18,13,18,18,16,21,17,9,17,19,17,22,18,18,17,19,13,20,15,24,14,18,16,16,22,17,11,18]},{"eq":"TEST_03","head":"TH_C","n":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],"f":[0.98,0.972,0.971,0.998,1.006,1.062,1.039,0.991,1.212,0.973,0.99,1.067,1.053,0.998,1.031,1.085,1.119,1.073,0.992,1.034,1.022,1.15,1.042,1.057,0.965,1.005,1.057,0.985,0.982,1.011,0.987],"t":[-2.15,-1.94,-3.12,1.49,-1.18,1.07,0.89,-0.67,7.8,0.05,-0.43,0.46,0.61,0.25,-0.53,2.51,2.29,1.65,-0.59,-1.03,0.52,6.84,1.87,1.43,-1.49,-0.72,2.08,-1.05,-1.15,-3.29,-2.82],"c":[3251.61,3262.5,3273.1,3293.64,3303.82,3314.41,3316.66,3332.55,3343.77,3357.62,3367.94,3378.95,3392.11,3407.37,3415.32,3428.74,3441.79,3455.24,3466.2,3474.18,3489.77,3508.6,3517.97,3528.11,3388.97,3130.58,3141.41,3152.46,3168.19,3180.33,3189.06],"j":[15,12,21,11,16,16,13,20,13,20,16,19,15,17,18,14,16,16,24,20,14,13,17,15,15,20,12,16,12,15,15]}],"bins":[{"label":"≤0.3℃","n":6442,"f":2.4228810928283147,"bad":false},{"label":"0.3~0.6℃","n":3230,"f":2.3965634674922605,"bad":false},{"label":"0.6~1℃","n":847,"f":2.3678866587957503,"bad":false},{"label":"1~2℃","n":221,"f":5.187782805429865,"bad":true},{"label":">2℃","n":420,"f":6.795714285714285,"bad":true}]};
-const HEADS = ['TH_A','TH_B','TH_C'];
-const EQS = ['TEST_01','TEST_02','TEST_03'];
-const COL = {TH_A:'var(--s1)', TH_B:'var(--s2)', TH_C:'var(--s3)'};
-const SPLIT = D.split; // 첫 후반기 인덱스 (8/17)
-const THR_F = 4, THR_T = 1;
-const M = {
-  f:{label:'불량률', thr:THR_F, zero:true, fmt:v=>v.toFixed(2)+'%', tick:v=>v+'%'},
-  t:{label:'온도 편차', thr:THR_T, fmt:v=>(v>=0?'+':'')+v.toFixed(2)+'℃', tick:v=>v+'℃'},
-  c:{label:'접촉 저항', fmt:v=>v.toFixed(1)+' mΩ', tick:v=>v},
-  j:{label:'jam 횟수', zero:true, fmt:v=>v.toFixed(2)+'회', tick:v=>v},
-};
-const st = {eq:'TEST_03', met:'f', heads:new Set(HEADS), per:'all', table:false};
-const $ = s => document.querySelector(s);
-const isDark = () => { const t=document.documentElement.dataset.theme; return t? t==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
-const NS = 'http://www.w3.org/2000/svg';
+const RAW=[["애플", "A", "AA1", 23.3, 100], ["애플", "B", "AA1", 40.9, 100], ["애플", "C", "AA1", 58.9, 100], ["애플", "A", "AA2", 2.8, 5], ["애플", "B", "AA2", 2.8, 5], ["애플", "C", "AA2", 2, 5], ["애플", "A", "AA3", 3, 5], ["애플", "B", "AA3", 2.3, 5], ["애플", "C", "AA3", 1, 5], ["애플", "A", "AA4", 41, 100], ["애플", "B", "AA4", 17.7, 100], ["애플", "C", "AA4", 68.2, 100], ["애플", "A", "AA5", 13.8, 20], ["애플", "B", "AA5", 6.8, 20], ["애플", "C", "AA5", 6.5, 20], ["애플", "A", "AA6", 5.9, 10], ["애플", "B", "AA6", 2.7, 10], ["애플", "C", "AA6", 2.5, 10], ["애플", "A", "AA7", 2.6, 10], ["애플", "B", "AA7", 3.5, 10], ["애플", "C", "AA7", 5.1, 10], ["애플", "A", "AA8", 7, 10], ["애플", "B", "AA8", 2.7, 10], ["애플", "C", "AA8", 6.9, 10], ["애플", "A", "AA9", 46.7, 100], ["애플", "B", "AA9", 66.4, 100], ["애플", "C", "AA9", 61.6, 100], ["애플", "A", "AA10", 1.2, 5], ["애플", "B", "AA10", 2.6, 5], ["애플", "C", "AA10", 1.1, 5], ["애플", "A", "AA11", 15.3, 100], ["애플", "B", "AA11", 37.5, 100], ["애플", "C", "AA11", 59.1, 100], ["애플", "A", "AA12", 47.3, 100], ["애플", "B", "AA12", 26, 100], ["애플", "C", "AA12", 62.9, 100], ["애플", "A", "AA13", 33.5, 50], ["애플", "B", "AA13", 14.3, 50], ["애플", "C", "AA13", 20.3, 50], ["애플", "A", "AA14", 2.6, 5], ["애플", "B", "AA14", 3.3, 5], ["애플", "C", "AA14", 1.1, 5], ["애플", "A", "AA15", 23.3, 50], ["애플", "B", "AA15", 35.1, 50], ["애플", "C", "AA15", 24.9, 50], ["애플", "A", "AA16", 16.8, 30], ["애플", "B", "AA16", 17.8, 30], ["애플", "C", "AA16", 13.2, 30], ["애플", "A", "AA17", 1.6, 5], ["애플", "B", "AA17", 2.4, 5], ["애플", "C", "AA17", 2.3, 5], ["애플", "A", "AA18", 1.7, 5], ["애플", "B", "AA18", 3.2, 5], ["애플", "C", "AA18", 1.8, 5], ["애플", "A", "AA19", 2.1, 5], ["애플", "B", "AA19", 2.9, 5], ["애플", "C", "AA19", 3.1, 5], ["애플", "A", "AA20", 6.6, 10], ["애플", "B", "AA20", 5.2, 10], ["애플", "C", "AA20", 2.9, 10], ["키위", "A", "AA1", 48.1, 100], ["키위", "B", "AA1", 26.1, 100], ["키위", "C", "AA1", 70, 100], ["키위", "A", "AA2", 3.4, 5], ["키위", "B", "AA2", 2.1, 5], ["키위", "C", "AA2", 2.6, 5], ["키위", "A", "AA3", 1.4, 5], ["키위", "B", "AA3", 1.4, 5], ["키위", "C", "AA3", 1.6, 5], ["키위", "A", "AA4", 54.5, 100], ["키위", "B", "AA4", 27.1, 100], ["키위", "C", "AA4", 70.4, 100], ["키위", "A", "AA5", 3.8, 20], ["키위", "B", "AA5", 5.2, 20], ["키위", "C", "AA5", 4, 20], ["키위", "A", "AA6", 5.9, 10], ["키위", "B", "AA6", 3.6, 10], ["키위", "C", "AA6", 4.2, 10], ["키위", "A", "AA7", 3.4, 10], ["키위", "B", "AA7", 5.1, 10], ["키위", "C", "AA7", 3.8, 10], ["키위", "A", "AA8", 2.7, 10], ["키위", "B", "AA8", 4, 10], ["키위", "C", "AA8", 3.2, 10], ["키위", "A", "AA9", 21.3, 100], ["키위", "B", "AA9", 61.9, 100], ["키위", "C", "AA9", 53.8, 100], ["키위", "A", "AA10", 2.6, 5], ["키위", "B", "AA10", 3.3, 5], ["키위", "C", "AA10", 1.9, 5], ["키위", "A", "AA11", 36.6, 100], ["키위", "B", "AA11", 95, 100], ["키위", "C", "AA11", 39.1, 100], ["키위", "A", "AA12", 38.1, 100], ["키위", "B", "AA12", 53.1, 100], ["키위", "C", "AA12", 15.4, 100], ["키위", "A", "AA13", 20.7, 50], ["키위", "B", "AA13", 22.7, 50], ["키위", "C", "AA13", 17.3, 50], ["키위", "A", "AA14", 0.8, 5], ["키위", "B", "AA14", 2.8, 5], ["키위", "C", "AA14", 0.8, 5], ["키위", "A", "AA15", 23.6, 50], ["키위", "B", "AA15", 11.9, 50], ["키위", "C", "AA15", 8.5, 50], ["키위", "A", "AA16", 7.6, 30], ["키위", "B", "AA16", 5.6, 30], ["키위", "C", "AA16", 7.1, 30], ["키위", "A", "AA17", 2.7, 5], ["키위", "B", "AA17", 2.8, 5], ["키위", "C", "AA17", 1.8, 5], ["키위", "A", "AA18", 2.6, 5], ["키위", "B", "AA18", 2.1, 5], ["키위", "C", "AA18", 2.2, 5], ["키위", "A", "AA19", 3.2, 5], ["키위", "B", "AA19", 1.6, 5], ["키위", "C", "AA19", 3.2, 5], ["키위", "A", "AA20", 5.4, 10], ["키위", "B", "AA20", 5.4, 10], ["키위", "C", "AA20", 1.5, 10], ["망고", "A", "AA1", 23.4, 100], ["망고", "B", "AA1", 50.1, 100], ["망고", "C", "AA1", 24.7, 100], ["망고", "A", "AA2", 2.8, 5], ["망고", "B", "AA2", 2.5, 5], ["망고", "C", "AA2", 1.8, 5], ["망고", "A", "AA3", 2.5, 5], ["망고", "B", "AA3", 2.4, 5], ["망고", "C", "AA3", 6, 5], ["망고", "A", "AA4", 17.5, 100], ["망고", "B", "AA4", 45.2, 100], ["망고", "C", "AA4", 50.3, 100], ["망고", "A", "AA5", 8.9, 20], ["망고", "B", "AA5", 13, 20], ["망고", "C", "AA5", 11.4, 20], ["망고", "A", "AA6", 3.6, 10], ["망고", "B", "AA6", 2.8, 10], ["망고", "C", "AA6", 2.2, 10], ["망고", "A", "AA7", 9.3, 10], ["망고", "B", "AA7", 6.1, 10], ["망고", "C", "AA7", 5.4, 10], ["망고", "A", "AA8", 5, 10], ["망고", "B", "AA8", 4, 10], ["망고", "C", "AA8", 4.4, 10], ["망고", "A", "AA9", 27.7, 100], ["망고", "B", "AA9", 45.2, 100], ["망고", "C", "AA9", 23.3, 100], ["망고", "A", "AA10", 2.5, 5], ["망고", "B", "AA10", 2.5, 5], ["망고", "C", "AA10", 2.7, 5], ["망고", "A", "AA11", 29, 100], ["망고", "B", "AA11", 20.2, 100], ["망고", "C", "AA11", 34, 100], ["망고", "A", "AA12", 54.2, 100], ["망고", "B", "AA12", 44.1, 100], ["망고", "C", "AA12", 57.6, 100], ["망고", "A", "AA13", 19.8, 50], ["망고", "B", "AA13", 18.9, 50], ["망고", "C", "AA13", 33.4, 50], ["망고", "A", "AA14", 1.2, 5], ["망고", "B", "AA14", 1.3, 5], ["망고", "C", "AA14", 2.4, 5], ["망고", "A", "AA15", 25.5, 50], ["망고", "B", "AA15", 19.8, 50], ["망고", "C", "AA15", 23.4, 50], ["망고", "A", "AA16", 12, 30], ["망고", "B", "AA16", 15.9, 30], ["망고", "C", "AA16", 19.7, 30], ["망고", "A", "AA17", 3.1, 5], ["망고", "B", "AA17", 2.6, 5], ["망고", "C", "AA17", 2.1, 5], ["망고", "A", "AA18", 3.5, 5], ["망고", "B", "AA18", 2, 5], ["망고", "C", "AA18", 2.5, 5], ["망고", "A", "AA19", 3.2, 5], ["망고", "B", "AA19", 2.7, 5], ["망고", "C", "AA19", 1.9, 5], ["망고", "A", "AA20", 5.7, 10], ["망고", "B", "AA20", 4.9, 10], ["망고", "C", "AA20", 6.7, 10], ["오렌지", "A", "AA1", 70.8, 100], ["오렌지", "B", "AA1", 112, 100], ["오렌지", "C", "AA1", 41, 100], ["오렌지", "A", "AA2", 2.8, 5], ["오렌지", "B", "AA2", 2.8, 5], ["오렌지", "C", "AA2", 1.4, 5], ["오렌지", "A", "AA3", 1, 5], ["오렌지", "B", "AA3", 2.5, 5], ["오렌지", "C", "AA3", 1.1, 5], ["오렌지", "A", "AA4", 36.8, 100], ["오렌지", "B", "AA4", 65.7, 100], ["오렌지", "C", "AA4", 64.7, 100], ["오렌지", "A", "AA5", 4.4, 20], ["오렌지", "B", "AA5", 3.9, 20], ["오렌지", "C", "AA5", 5.5, 20], ["오렌지", "A", "AA6", 6.2, 10], ["오렌지", "B", "AA6", 1.6, 10], ["오렌지", "C", "AA6", 2.8, 10], ["오렌지", "A", "AA7", 2.1, 10], ["오렌지", "B", "AA7", 2.2, 10], ["오렌지", "C", "AA7", 4.5, 10], ["오렌지", "A", "AA8", 2.5, 10], ["오렌지", "B", "AA8", 3.8, 10], ["오렌지", "C", "AA8", 5.7, 10], ["오렌지", "A", "AA9", 56.2, 100], ["오렌지", "B", "AA9", 38.7, 100], ["오렌지", "C", "AA9", 59.8, 100], ["오렌지", "A", "AA10", 2.4, 5], ["오렌지", "B", "AA10", 3.1, 5], ["오렌지", "C", "AA10", 1.5, 5], ["오렌지", "A", "AA11", 36, 100], ["오렌지", "B", "AA11", 48.1, 100], ["오렌지", "C", "AA11", 68.9, 100], ["오렌지", "A", "AA12", 50.2, 100], ["오렌지", "B", "AA12", 42.1, 100], ["오렌지", "C", "AA12", 29.3, 100], ["오렌지", "A", "AA13", 15.5, 50], ["오렌지", "B", "AA13", 13.6, 50], ["오렌지", "C", "AA13", 35.6, 50], ["오렌지", "A", "AA14", 7, 5], ["오렌지", "B", "AA14", 3.3, 5], ["오렌지", "C", "AA14", 3.3, 5], ["오렌지", "A", "AA15", 22.6, 50], ["오렌지", "B", "AA15", 27.7, 50], ["오렌지", "C", "AA15", 15.9, 50], ["오렌지", "A", "AA16", 12.7, 30], ["오렌지", "B", "AA16", 7, 30], ["오렌지", "C", "AA16", 11.7, 30], ["오렌지", "A", "AA17", 1.5, 5], ["오렌지", "B", "AA17", 1, 5], ["오렌지", "C", "AA17", 3.4, 5], ["오렌지", "A", "AA18", 1, 5], ["오렌지", "B", "AA18", 3.1, 5], ["오렌지", "C", "AA18", 2.7, 5], ["오렌지", "A", "AA19", 1, 5], ["오렌지", "B", "AA19", 2.1, 5], ["오렌지", "C", "AA19", 3.6, 5], ["오렌지", "A", "AA20", 7.1, 10], ["오렌지", "B", "AA20", 4.7, 10], ["오렌지", "C", "AA20", 9.6, 10]];
+const SUP=["애플","키위","망고","오렌지"],COL={애플:"var(--s1)",키위:"var(--s2)",망고:"var(--s3)",오렌지:"var(--s4)"};
+const D=RAW.map(([s,l,i,v,sp])=>({s,l,i,v,sp,r:v/sp,st:v>sp?"c":(v>=sp*0.9?"w":"o")}));
+const ITEMS=[...new Set(D.map(d=>d.i))];
+const STN={c:"부적합",w:"주의",o:"적합"};
+let flt="전체";
+const sel=()=>D.filter(d=>flt==="전체"||d.s===flt);
+function lotVerdict(s,l){const a=D.filter(d=>d.s===s&&d.l===l);return a.some(d=>d.st==="c")?"불합격":a.some(d=>d.st==="w")?"조건부":"합격";}
+const LOTS=SUP.flatMap(s=>["A","B","C"].map(l=>({s,l,v:lotVerdict(s,l)})));
+const tip=document.getElementById("tip");
+function showTip(e,t){tip.innerHTML=t;tip.style.display="block";tip.style.left=Math.min(e.clientX+14,innerWidth-270)+"px";tip.style.top=(e.clientY+14)+"px";}
+function hideTip(){tip.style.display="none";}
+function tag(st){return `<span class="tag ${st==="c"?"c":st==="w"?"w":"g"}"><i>${st==="c"?"✕":st==="w"?"▲":"✓"}</i>${STN[st]}</span>`;}
+const worstOf=a=>a.reduce((p,c)=>c.r>p.r?c:p);
 
-// ---- 집계 ----
-function agg(pred, i0, i1){
-  const o={n:0,f:0,t:0,c:0,j:0};
-  for(const cb of D.combos){ if(!pred(cb)) continue;
-    for(let i=i0;i<=i1;i++){ o.n+=cb.n[i]; o.f+=cb.f[i]; o.t+=cb.t[i]; o.c+=cb.c[i]; o.j+=cb.j[i]; } }
-  return o;
+function summary(){
+ const f=LOTS.filter(x=>x.v==="불합격"),w=LOTS.filter(x=>x.v==="조건부"),g=LOTS.filter(x=>x.v==="합격");
+ const bad=s=>LOTS.filter(x=>x.s===s&&x.v!=="합격").length;
+ const ranked=[...SUP].sort((a,b)=>bad(b)-bad(a)),clean=SUP.filter(s=>bad(s)===0),top=worstOf(D);
+ document.getElementById("sum").innerHTML=[
+  `전체 ${LOTS.length}개 LOT 중 합격 ${g.length}개, 조건부 ${w.length}개, 불합격 ${f.length}개입니다. 불합격 LOT: ${f.map(x=>x.s+" "+x.l).join(", ")||"없음"}.`,
+  `${ranked[0]}는 ${bad(ranked[0])}개 LOT에서 이상이 나와 가장 위험합니다. 이상이 없는 소재사: ${clean.join(", ")||"없음"}.`,
+  `규격을 가장 크게 넘은 값은 ${top.s} LOT ${top.l}의 ${top.i} (${top.v}ppm, 상한 ${top.sp}ppm의 ${Math.round(top.r*100)}%)입니다.`
+ ].map(t=>`<li>${t}</li>`).join("");
 }
-const val = (o,k) => o.n? (k==='f'? o[k]/o.n*100 : k==='t'? Math.round(o[k]/o.n*100)/100+0 : o[k]/o.n) : NaN;
-const ND = D.days.length;
-function series(h){
-  const out=[];
-  for(let i=0;i<ND;i++){
-    const o=agg(cb=>cb.head===h && (st.eq==='ALL'||cb.eq===st.eq), i, i);
-    out.push(val(o,st.met));
-  }
-  return out;
+function kpis(){
+ const n=v=>LOTS.filter(x=>x.v===v).length,nf=D.filter(d=>d.st==="c").length,nw=D.filter(d=>d.st==="w").length;
+ document.getElementById("kpis").innerHTML=[["검사 LOT",LOTS.length,`${D.length}개 분석값 판정`],["✓ 합격",n("합격"),"전 항목 적합"],["▲ 조건부",n("조건부"),`주의 항목 ${nw}건 포함`],["✕ 불합격",n("불합격"),`부적합 항목 ${nf}건 포함`]]
+  .map(([l,v,d])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join("");
 }
-function comboStats(cb){
-  const p=f=>({n:cb.n,f:cb.f,t:cb.t,c:cb.c,j:cb.j});
-  const a=(i0,i1)=>agg(x=>x===cb,i0,i1);
-  return {all:a(0,ND-1), pre:a(0,SPLIT-1), post:a(SPLIT,ND-1)};
+function chips(){
+ const box=document.getElementById("chips");box.innerHTML="";
+ ["전체",...SUP].forEach(n=>{const b=document.createElement("button");b.type="button";b.className="chip";b.setAttribute("aria-pressed",n===flt);
+  b.innerHTML=(n==="전체"?"":`<span class="dot" style="background:${COL[n]}"></span>`)+n;b.onclick=()=>{flt=n;chips();heat();table();};box.appendChild(b);});
 }
-const isBad = (o) => val(o,'f')>THR_F || val(o,'t')>THR_T;
+function heat(){
+ const sups=flt==="전체"?SUP:[flt],cols=sups.flatMap(s=>["A","B","C"].map(l=>[s,l]));
+ const g=document.getElementById("hm");g.style.gridTemplateColumns=`44px repeat(${cols.length},minmax(36px,1fr))`;
+ let h=`<div></div>`+sups.map(s=>`<div class="hh" style="grid-column:span 3;border-bottom:3px solid ${COL[s]}">${s}</div>`).join("");
+ h+=`<div></div>`+cols.map(([s,l])=>`<div class="hh">${l}</div>`).join("");
+ ITEMS.forEach(it=>{h+=`<div class="hl">${it}</div>`;cols.forEach(([s,l])=>{
+  const d=D.find(x=>x.s===s&&x.l===l&&x.i===it),p=Math.round(d.r*100);
+  const bg=d.st==="o"?`background:rgba(var(--ok-tint),${(0.08+0.5*Math.min(d.r/0.9,1)).toFixed(2)})`:"";
+  h+=`<div class="cell ${d.st==="o"?"":d.st}" style="${bg}" data-k="${s}|${l}|${it}">${d.st==="c"?"✕ ":d.st==="w"?"▲ ":""}${p}</div>`;});});
+ g.innerHTML=h;
+ g.querySelectorAll(".cell").forEach(c=>{const [s,l,it]=c.dataset.k.split("|"),d=D.find(x=>x.s===s&&x.l===l&&x.i===it);
+  c.onmousemove=e=>showTip(e,`<b>${s} LOT ${l} · ${it}</b><br>${d.v} ppm / 상한 ${d.sp} ppm (${Math.round(d.r*100)}%)<br>판정: ${STN[d.st]}`);c.onmouseleave=hideTip;});
+}
+function c1(){
+ const sc=Math.max(1.5,Math.ceil(worstOf(D).r*10)/10),el=document.getElementById("c1");
+ el.innerHTML=SUP.map((s,k)=>{const m=worstOf(D.filter(d=>d.s===s));
+  return `<div class="brow" data-s="${s}"><span class="nm">${s}</span><div class="track"><div class="bar" style="width:${m.r/sc*100}%;background:${COL[s]}"></div><div class="refline" style="left:${100/sc}%">${k===0?'<span class="reflbl">상한 100%</span>':""}</div></div><span><b>${Math.round(m.r*100)}%</b> <span style="color:var(--ink2);font-size:12px">${m.i}</span></span></div>`;}).join("");
+ el.querySelectorAll(".brow").forEach(r=>{const a=D.filter(d=>d.s===r.dataset.s),m=worstOf(a),avg=a.reduce((t,c)=>t+c.r,0)/a.length;
+  r.onmousemove=e=>showTip(e,`<b>${r.dataset.s}</b><br>최대 ${Math.round(m.r*100)}% (LOT ${m.l} ${m.i})<br>평균 ${Math.round(avg*100)}%`);r.onmouseleave=hideTip;});
+}
+function cnt(s){const n={o:0,w:0,c:0};D.filter(d=>d.s===s).forEach(d=>n[d.st]++);return n;}
+function c2(){
+ const el=document.getElementById("c2");
+ el.innerHTML=SUP.map(s=>{const n=cnt(s),t=n.o+n.w+n.c,seg=(k,bg)=>n[k]?`<div style="width:${n[k]/t*100}%;background:${bg}"></div>`:"";
+  return `<div class="brow" data-s="${s}" style="grid-template-columns:70px 1fr 130px"><span class="nm">${s}</span><div class="stack">${seg("c","var(--crit)")}${seg("w","var(--warn)")}${seg("o","rgba(var(--ok-tint),.45)")}</div><span style="font-size:12.5px">✕ ${n.c} · ▲ ${n.w} · 적합 ${n.o}</span></div>`;}).join("");
+ el.querySelectorAll(".brow").forEach(r=>{const n=cnt(r.dataset.s);
+  r.onmousemove=e=>showTip(e,`<b>${r.dataset.s}</b><br>부적합 ${n.c}건 · 주의 ${n.w}건 · 적합 ${n.o}건`);r.onmouseleave=hideTip;});
+}
+function table(){
+ const a=sel().filter(d=>d.st!=="o").sort((x,y)=>y.r-x.r);
+ document.querySelector("#tbl tbody").innerHTML=a.length?a.map(d=>`<tr><td><span class="dot" style="background:${COL[d.s]};margin-right:6px"></span>${d.s}</td><td>${d.l}</td><td>${d.i}</td><td class="n">${d.v}</td><td class="n">${d.sp}</td><td class="n">${Math.round(d.r*100)}%</td><td>${tag(d.st)}</td></tr>`).join(""):`<tr><td colspan="7" style="color:var(--ink2)">이상 항목이 없습니다.</td></tr>`;
+}
+function acts(){
+ let st={};try{st=JSON.parse(localStorage.getItem("insp-acts")||"{}")}catch(e){}
+ const L=[],names=(x,k)=>D.filter(d=>d.s===x.s&&d.l===x.l&&d.st===k).map(d=>d.i).join(", ");
+ LOTS.filter(x=>x.v==="불합격").forEach(x=>L.push([`${x.s}-${x.l}-c`,`<b>${x.s} LOT ${x.l}</b> 입고 보류 · ${names(x,"c")} 부적합 → 소재사에 재분석 성적서와 시정조치 요청`]));
+ LOTS.filter(x=>x.v==="조건부").forEach(x=>L.push([`${x.s}-${x.l}-w`,`<b>${x.s} LOT ${x.l}</b> 조건부 사용 · ${names(x,"w")} 상한 근접 → 다음 LOT 해당 항목 집중 확인`]));
+ SUP.forEach(s=>{if(LOTS.filter(x=>x.s===s&&x.v!=="합격").length>=3)L.push([`${s}-audit`,`<b>${s}</b> 3개 LOT 모두 이상 → 소재사 품질 심사(감사) 및 개선계획서 요구 검토`]);});
+ document.getElementById("acts").innerHTML=L.map(([k,t])=>`<label><input type="checkbox" data-k="${k}" ${st[k]?"checked":""}><span>${t}</span></label>`).join("");
+ document.querySelectorAll("#acts input").forEach(i=>i.onchange=()=>{st[i.dataset.k]=i.checked;try{localStorage.setItem("insp-acts",JSON.stringify(st))}catch(e){}});
+}
+document.getElementById("theme").onclick=()=>{const r=document.documentElement,dk=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dk?"light":"dark";};
+/* ---- 챗봇 ---- */
+const $=id=>document.getElementById(id);
+const SYS=(()=>{
+ const csv=["소재사,LOT,항목,분석값(ppm),규격상한(ppm),사용률(%),판정",...D.map(d=>`${d.s},${d.l},${d.i},${d.v},${d.sp},${Math.round(d.r*100)},${STN[d.st]}`)].join("\n");
+ const lots=LOTS.map(x=>`${x.s} LOT ${x.l}: ${x.v}`).join("\n");
+ return `당신은 소재 수입검사 데이터 분석 도우미입니다. 소재사 4곳(애플, 키위, 망고, 오렌지)이 납품한 LOT A·B·C의 분석항목 AA1~AA20 값(ppm)이 아래에 있습니다.
+규칙: 반드시 아래 데이터만 근거로 한국어로 답하세요. 데이터에 없는 내용은 추정하지 말고 "데이터에 없습니다"라고 답하세요. 답변에는 소재사·LOT·항목·값·상한 같은 근거 수치를 함께 제시하세요. 합부의 최종 결정은 수입검사 담당자가 확인·승인해야 한다고 필요할 때 덧붙이세요.
+판정 기준: 분석값 > 규격 상한이면 부적합, 상한의 90% 이상이면 주의, 그 외 적합. LOT 종합: 부적합이 하나라도 있으면 불합격, 주의가 있으면 조건부, 모두 적합이면 합격.
 
-// ---- 필터 UI ----
-function chips(el, items, isOn, onClick, colorFn){
-  items.forEach(it=>{
-    const b=document.createElement('button'); b.type='button'; b.className='chip';
-    b.setAttribute('aria-pressed', isOn(it.k)); b.dataset.k=it.k;
-    b.innerHTML=(colorFn?`<span class="sw" style="background:${colorFn(it.k)}"></span>`:'')+it.l;
-    b.onclick=()=>{ onClick(it.k); chips_refresh(el, isOn); };
-    el.appendChild(b);
-  });
-}
-function chips_refresh(el,isOn){ el.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed', isOn(b.dataset.k))); }
+[LOT 종합 판정]
+${lots}
 
-// ---- 상단 KPI / 경고 ----
-function renderTop(){
-  const all=agg(()=>true,0,ND-1);
-  const bads=D.combos.filter(cb=>isBad(comboStats(cb).post));
-  $('#sub').textContent=`${D.range[0]} ~ ${D.range[1]} · ${all.n.toLocaleString()} lot · 설비 3대 × 헤드 3개`;
-  const kp=[];
-  kp.push(`<div class="card kpi"><div class="l">전체 평균 불량률</div><div class="v">${val(all,'f').toFixed(2)}%</div><div class="d">수율 ${(100-val(all,'f')).toFixed(2)}% · ${all.n.toLocaleString()} lot</div></div>`);
-  if(bads.length){
-    const rest=agg(cb=>!bads.includes(cb)||true,0,0); // placeholder to keep structure simple
-    const restAll=agg(cb=>!bads.includes(cb),0,ND-1);
-    const b=bads[0], s=comboStats(b);
-    kp.push(`<div class="card kpi bad"><div class="l">⚠ ${b.eq} / ${b.head} (8/17 이후)</div><div class="v">${val(s.post,'f').toFixed(2)}%</div><div class="d">전반기 ${val(s.pre,'f').toFixed(2)}% → ${(val(s.post,'f')/val(s.pre,'f')).toFixed(1)}배</div></div>`);
-    kp.push(`<div class="card kpi bad"><div class="l">⚠ 온도 편차 (soak − set)</div><div class="v">+${val(s.post,'t').toFixed(2)}℃</div><div class="d">전반기 ${val(s.pre,'t')>=0?'+':''}${val(s.pre,'t').toFixed(2)}℃</div></div>`);
-    kp.push(`<div class="card kpi"><div class="l">이상 조합 제외 평균 불량률</div><div class="v">${val(restAll,'f').toFixed(2)}%</div><div class="d">나머지 ${D.combos.length-bads.length}개 조합</div></div>`);
-    const dayLabel=D.days[SPLIT];
-    $('#alert').innerHTML=`<div class="ic">⚠</div><div><b>이상 감지: ${b.eq} · ${b.head}</b> — ${dayLabel}부터 soak 온도가 설정값보다 평균 <b>+${val(s.post,'t').toFixed(1)}℃</b> 높고, 불량률이 <b>${val(s.pre,'f').toFixed(2)}% → ${val(s.post,'f').toFixed(2)}%</b>로 올랐습니다. 다른 8개 조합은 변화가 없습니다.</div>`;
-  } else { $('#alert').style.display='none'; }
-  $('#kpis').innerHTML=kp.join('');
+[전체 데이터 CSV]
+${csv}`;})();
+let hist=[],busy=false;
+try{$("cb-model").value=localStorage.getItem("cb-model")||"";$("cb-url").value=localStorage.getItem("cb-url")||"";}catch(e){}
+function addMsg(role,text){const m=document.createElement("div");m.className="msg "+role;m.textContent=text;const l=$("cb-log");l.appendChild(m);l.scrollTop=l.scrollHeight;return m;}
+addMsg("bot","안녕하세요. 위 연결 설정(model_name, base_url, api_key)을 입력한 뒤 데이터에 대해 질문해 보세요.");
+["불합격 LOT과 그 이유는?","오렌지가 위험한 이유를 알려줘","상한에 근접한 항목은?","어느 소재사가 가장 안정적이야?"].forEach(q=>{const b=document.createElement("button");b.type="button";b.textContent=q;b.onclick=()=>{$("cb-q").value=q;ask(q);};$("cb-sugg").appendChild(b);});
+async function ask(q){
+ q=(q||"").trim();if(!q||busy)return;
+ const model=$("cb-model").value.trim(),key=$("cb-key").value.trim();let base=$("cb-url").value.trim().replace(/\/+$/,"");
+ if(!model||!base||!key){addMsg("bot","model_name, base_url, api_key를 모두 입력해 주세요.").classList.add("err");$("cb-set").open=true;return;}
+ try{localStorage.setItem("cb-model",model);localStorage.setItem("cb-url",base);}catch(e){}
+ const url=base.endsWith("/chat/completions")?base:base+"/chat/completions";
+ busy=true;$("cb-send").disabled=true;$("cb-q").value="";
+ hist.push({role:"user",content:q});addMsg("user",q);const pend=addMsg("bot","답변 생성 중…");
+ try{
+  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify({model,temperature:0.2,messages:[{role:"system",content:SYS},...hist.slice(-12)]})});
+  if(!res.ok){const t=await res.text();throw new Error(res.status+" "+t.slice(0,300));}
+  const j=await res.json(),a=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||"";
+  if(!a)throw new Error("응답 형식을 해석하지 못했습니다: "+JSON.stringify(j).slice(0,200));
+  hist.push({role:"assistant",content:a});pend.textContent=a;$("cb-set").open=false;
+ }catch(e){hist.pop();pend.textContent="오류: "+e.message+"\n(주소·모델명·키, 그리고 해당 서버의 CORS 허용 여부를 확인하세요)";pend.classList.add("err");}
+ busy=false;$("cb-send").disabled=false;$("cb-log").scrollTop=$("cb-log").scrollHeight;
 }
-
-// ---- 선 그래프 ----
-function niceTicks(lo,hi,n){
-  const span=hi-lo||1, raw=span/n, mag=Math.pow(10,Math.floor(Math.log10(raw)));
-  const step=[1,2,2.5,5,10].map(m=>m*mag).find(s=>s>=raw);
-  const a=Math.floor(lo/step)*step, ticks=[];
-  for(let v=a; v<=hi+step*0.001; v+=step) ticks.push(+v.toFixed(6));
-  return ticks;
-}
-let geo=null;
-function renderChart(){
-  const svg=$('#svg'), box=$('#chartbox');
-  const W=Math.max(320, box.clientWidth), H=340;
-  const m={l:48,r:92,t:14,b:32}, iw=W-m.l-m.r, ih=H-m.t-m.b;
-  svg.setAttribute('width',W); svg.setAttribute('height',H); svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  const cfg=M[st.met];
-  const vis=HEADS.filter(h=>st.heads.has(h));
-  const data=vis.map(h=>({h,v:series(h)}));
-  let all=data.flatMap(d=>d.v), lo=Math.min(...all), hi=Math.max(...all);
-  if(!all.length){ lo=0; hi=1; }
-  if(cfg.thr!==undefined){ hi=Math.max(hi,cfg.thr*1.25); if(st.met==='t') lo=Math.min(lo,-0.5); }
-  if(cfg.zero) lo=0;
-  const pad=(hi-lo)*0.06; if(!cfg.zero && st.met!=='t') lo-=pad; hi+=pad;
-  const ticks=niceTicks(lo,hi,5); lo=Math.min(lo,ticks[0]); hi=Math.max(hi,ticks[ticks.length-1]);
-  const X=i=>m.l+iw*i/(ND-1), Y=v=>m.t+ih*(1-(v-lo)/(hi-lo));
-  let s='';
-  // 이상 구간 음영
-  const flagged=new Array(ND).fill(false);
-  if(cfg.thr!==undefined) data.forEach(d=>d.v.forEach((v,i)=>{ if(v>cfg.thr) flagged[i]=true; }));
-  let i=0;
-  while(i<ND){ if(flagged[i]){ let j=i; while(j+1<ND&&flagged[j+1]) j++;
-      const x0=X(i)-iw/(ND-1)/2, x1=X(j)+iw/(ND-1)/2;
-      s+=`<rect x="${Math.max(m.l,x0)}" y="${m.t}" width="${Math.min(m.l+iw,x1)-Math.max(m.l,x0)}" height="${ih}" fill="var(--crit-band)"/>`;
-      s+=`<text x="${(Math.max(m.l,x0)+Math.min(m.l+iw,x1))/2}" y="${m.t+14}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--crit-ink)">⚠ 이상 구간 ${D.days[i]}~${D.days[j]}</text>`;
-      i=j+1; } else i++; }
-  // 격자 / 축
-  ticks.forEach(t=>{ s+=`<line x1="${m.l}" x2="${m.l+iw}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)" stroke-width="1"/><text x="${m.l-8}" y="${Y(t)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${cfg.tick(t)}</text>`; });
-  if(lo<0&&hi>0) s+=`<line x1="${m.l}" x2="${m.l+iw}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)"/>`;
-  for(let k=0;k<ND;k+=3) s+=`<text x="${X(k)}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${D.days[k]}</text>`;
-  // 기준선
-  if(cfg.thr!==undefined){ s+=`<line x1="${m.l}" x2="${m.l+iw}" y1="${Y(cfg.thr)}" y2="${Y(cfg.thr)}" stroke="var(--crit)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${m.l+iw+4}" y="${Y(cfg.thr)+4}" font-size="11" fill="var(--crit-ink)">기준 ${cfg.fmt(cfg.thr)}</text>`; }
-  // 선
-  data.forEach(d=>{
-    const pts=d.v.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
-    s+=`<polyline points="${pts}" fill="none" stroke="${COL[d.h]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    if(cfg.thr!==undefined) d.v.forEach((v,i)=>{ if(v>cfg.thr) s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${COL[d.h]}" stroke="var(--crit)" stroke-width="2"/>`; });
-  });
-  // 끝 라벨 (겹침 방지)
-  const labs=data.map(d=>({h:d.h,y:Y(d.v[ND-1]),v:d.v[ND-1]})).sort((a,b)=>a.y-b.y);
-  for(let k=1;k<labs.length;k++) if(labs[k].y-labs[k-1].y<15) labs[k].y=labs[k-1].y+15;
-  labs.forEach(l=>{ s+=`<circle cx="${m.l+iw+10}" cy="${l.y}" r="4" fill="${COL[l.h]}"/><text x="${m.l+iw+18}" y="${l.y+4}" font-size="12" fill="var(--ink)">${l.h} ${cfg.fmt(l.v)}</text>`; });
-  s+=`<line id="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t+ih}" stroke="var(--ink2)" stroke-width="1" style="display:none"/><g id="hd"></g>`;
-  s+=`<rect id="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/>`;
-  svg.innerHTML=s;
-  geo={m,iw,ih,X,Y,data,cfg,W};
-  const hit=$('#hit'), tip=$('#tip');
-  hit.onmousemove=e=>{
-    const r=svg.getBoundingClientRect(); const px=e.clientX-r.left;
-    const k=Math.max(0,Math.min(ND-1,Math.round((px-m.l)/iw*(ND-1))));
-    $('#xh').setAttribute('x1',X(k)); $('#xh').setAttribute('x2',X(k)); $('#xh').style.display='';
-    $('#hd').innerHTML=data.map(d=>`<circle cx="${X(k)}" cy="${Y(d.v[k])}" r="5" fill="${COL[d.h]}" stroke="var(--surface)" stroke-width="2"/>`).join('');
-    let h=`<div class="t">2026-${D.days[k]}</div>`;
-    data.forEach(d=>{ const bad=cfg.thr!==undefined&&d.v[k]>cfg.thr;
-      h+=`<div class="r"><span class="n"><span class="dot" style="background:${COL[d.h]}"></span>${d.h}</span><b ${bad?'style="color:var(--crit-ink)"':''}>${cfg.fmt(d.v[k])}${bad?' ⚠':''}</b></div>`; });
-    tip.innerHTML=h; tip.style.display='block';
-    const tw=tip.offsetWidth; let left=X(k)+14; if(left+tw>W-4) left=X(k)-tw-14;
-    tip.style.left=left+'px'; tip.style.top=(m.t+8)+'px';
-  };
-  hit.onmouseleave=()=>{ tip.style.display='none'; $('#xh').style.display='none'; $('#hd').innerHTML=''; };
-  // 범례
-  let lg=HEADS.map(h=>`<span><span class="dot" style="background:${COL[h]};opacity:${st.heads.has(h)?1:.3}"></span> ${h}</span>`).join('');
-  if(cfg.thr!==undefined) lg+=`<span><span class="band"></span> 기준 초과 구간</span><span><span class="ring"></span> 초과한 날</span><span><span class="dash"></span> 기준선 ${cfg.fmt(cfg.thr)}</span>`;
-  lg+=`<span>${st.eq==='ALL'?'전체 설비':st.eq} · ${cfg.label}</span>`;
-  $('#legend').innerHTML=lg;
-  // 표
-  const tb=$('#tbl'); tb.hidden=!st.table; $('#chartbox').hidden=st.table; $('#legend').hidden=st.table;
-  if(st.table){
-    let t=`<table><tr><th>날짜</th>${data.map(d=>`<th>${d.h}</th>`).join('')}</tr>`;
-    for(let k=0;k<ND;k++) t+=`<tr><td>${D.days[k]}</td>${data.map(d=>{const bad=cfg.thr!==undefined&&d.v[k]>cfg.thr;return `<td class="${bad?'st-bad':''}">${cfg.fmt(d.v[k])}${bad?' ⚠':''}</td>`;}).join('')}</tr>`;
-    tb.innerHTML=t+'</table>';
-  }
-}
-
-// ---- 히트맵 ----
-function lerp(a,b,t){ return a.map((x,i)=>Math.round(x+(b[i]-x)*t)); }
-const hex=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
-function heatColor(v){
-  const t=Math.max(0,Math.min(1,(v-2)/(7-2)));
-  const lo=isDark()?hex('#0d366b'):hex('#cde2fb'), hi=isDark()?hex('#86b6ef'):hex('#0d366b');
-  const c=lerp(lo,hi,t); const lum=(0.299*c[0]+0.587*c[1]+0.114*c[2])/255;
-  return {bg:`rgb(${c})`, fg: lum>0.55?'#0b0b0b':'#ffffff'};
-}
-function renderHeat(){
-  const [i0,i1]= st.per==='all'?[0,ND-1]: st.per==='pre'?[0,SPLIT-1]:[SPLIT,ND-1];
-  let h='<div></div>'+HEADS.map(x=>`<div class="h">${x}</div>`).join('');
-  EQS.forEach(eq=>{
-    h+=`<div class="rl">${eq}</div>`;
-    HEADS.forEach(hd=>{
-      const o=agg(cb=>cb.eq===eq&&cb.head===hd,i0,i1), f=val(o,'f'), t=val(o,'t'), c=heatColor(f), bad=isBad(o);
-      h+=`<div class="cell ${bad?'bad':''}" style="background:${c.bg};color:${c.fg}"><div class="v">${bad?'⚠ ':''}${f.toFixed(2)}%</div><div class="s">온도 편차 ${t>=0?'+':''}${t.toFixed(2)}℃</div></div>`;
-    });
-  });
-  $('#heat').innerHTML=h;
-}
-
-// ---- 막대 / 표 / 인사이트 ----
-function renderBars(){
-  const mx=Math.max(...D.bins.map(b=>b.f))*1.15;
-  $('#bars').innerHTML=D.bins.map(b=>{const bad=b.bad;return `<div class="bcol" title="${b.label}: 불량률 ${b.f.toFixed(2)}% · ${b.n.toLocaleString()} lot"><div class="bval ${bad?'bad':''}">${bad?'⚠ ':''}${b.f.toFixed(2)}%</div><div class="bar ${bad?'bad':''}" style="height:${(b.f/mx*100).toFixed(1)}%"></div></div>`;}).join('');
-  $('#blabs').innerHTML=D.bins.map(b=>`<div>${b.label}<small>${b.n.toLocaleString()} lot</small></div>`).join('');
-}
-function renderCombo(){
-  let t=`<tr><th class="l">설비</th><th class="l">헤드</th><th>lot</th><th>전체 불량률</th><th>8/1~8/16</th><th>8/17~8/31</th><th>온도 편차(후반)</th><th>접촉 저항</th><th class="l">상태</th></tr>`;
-  D.combos.forEach(cb=>{
-    const s=comboStats(cb), bad=isBad(s.post);
-    t+=`<tr class="${bad?'bad':''}"><td>${cb.eq}</td><td class="l">${cb.head}</td><td>${s.all.n.toLocaleString()}</td><td>${val(s.all,'f').toFixed(2)}%</td><td>${val(s.pre,'f').toFixed(2)}%</td><td class="${bad?'st-bad':''}">${val(s.post,'f').toFixed(2)}%</td><td class="${bad?'st-bad':''}">${val(s.post,'t')>=0?'+':''}${val(s.post,'t').toFixed(2)}℃</td><td>${val(s.all,'c').toFixed(1)} mΩ</td><td class="l ${bad?'st-bad':'st-ok'}">${bad?'⚠ 이상 (기준 초과)':'● 정상'}</td></tr>`;
-  });
-  $('#combo').innerHTML=t;
-}
-function renderIns(){
-  const bad=D.combos.find(cb=>isBad(comboStats(cb).post)); if(!bad){ $('#ins').innerHTML='<li>기준을 넘은 조합이 없습니다.</li>'; return; }
-  const s=comboStats(bad);
-  $('#ins').innerHTML=[
-    `<b>${bad.eq} / ${bad.head}</b>만 ${D.days[SPLIT]}부터 soak 온도가 설정값보다 약 +${val(s.post,'t').toFixed(1)}℃ 높습니다.`,
-    `이 조합의 불량률: <b>${val(s.pre,'f').toFixed(2)}% → ${val(s.post,'f').toFixed(2)}%</b> (약 ${(val(s.post,'f')/val(s.pre,'f')).toFixed(1)}배).`,
-    `온도 편차와 불량률의 상관계수는 0.91로 가장 강합니다. 편차가 1℃를 넘으면 불량률이 5% 이상으로 오릅니다.`,
-    `후반기 이 조합의 불량률은 제품(A12·B07·C03·D09)과 무관하게 6.4~6.5%로 같아, 제품이 아닌 헤드의 가열 이상이 의심됩니다.`,
-    `권고: ${bad.eq}/${bad.head}의 히터·온도 센서·캘리브레이션 이력(8/16~8/17 정비 여부)을 점검하세요.`,
-  ].map(x=>`<li>${x}</li>`).join('');
-}
-
-// ---- 챗봇 ----
-function buildContext(){
-  const r2=x=>Math.round(x*100)/100, L=[];
-  const all=agg(()=>true,0,ND-1);
-  L.push(`[기간] 2026-${D.days[0]} ~ 2026-${D.days[ND-1]} (${ND}일), 총 ${all.n} lot, lot당 디바이스 1000개, 설비 3대(TEST_01~03) × 헤드 3개(TH_A~C) = 9개 조합, 조합당 하루 40 lot.`);
-  L.push(`[전체] 평균 불량률 ${r2(val(all,'f'))}%, 평균 온도 편차(soak−set) ${val(all,'t')}℃, 평균 접촉 저항 ${r2(val(all,'c'))} mΩ, lot당 jam ${r2(val(all,'j'))}회.`);
-  L.push(`[기준] 불량률 ${THR_F}% 초과 또는 온도 편차 +${THR_T}℃ 초과를 이상으로 표시. 전반기=${D.days[0]}~${D.days[SPLIT-1]}, 후반기=${D.days[SPLIT]}~${D.days[ND-1]}.`);
-  L.push('[조합별 요약] 설비/헤드: 전체·전반기·후반기 불량률(%) | 전체·전반기·후반기 온도 편차(℃) | 접촉 저항 | lot당 jam | 상태');
-  D.combos.forEach(cb=>{ const s=comboStats(cb);
-    L.push(`${cb.eq}/${cb.head}: ${r2(val(s.all,'f'))}·${r2(val(s.pre,'f'))}·${r2(val(s.post,'f'))} | ${val(s.all,'t')}·${val(s.pre,'t')}·${val(s.post,'t')} | ${r2(val(s.all,'c'))} | ${r2(val(s.all,'j'))} | ${isBad(s.post)?'이상':'정상'}`); });
-  L.push('[온도 편차 절댓값 구간별 평균 불량률] '+D.bins.map(b=>`${b.label}: ${r2(b.f)}% (${b.n} lot)`).join(', '));
-  L.push('[일별 불량률(%) — 날짜 순서: '+D.days.join(',')+']');
-  D.combos.forEach(cb=>L.push(`${cb.eq}/${cb.head}: `+cb.f.map((v,i)=>r2(v/cb.n[i]*100)).join(',')));
-  L.push('[일별 온도 편차(℃) — 같은 날짜 순서]');
-  D.combos.forEach(cb=>L.push(`${cb.eq}/${cb.head}: `+cb.t.map((v,i)=>r2(v/cb.n[i])).join(',')));
-  L.push('[사전 분석 메모(대시보드 하단에도 표시됨)] 제품 4종의 평균 불량률 차이는 0.03%p 이내. PROD_B07의 프로그램 R15는 8/17부터 TEST_02에서만 436 lot 사용되었고 R14와 불량률 차이가 크지 않음. jam 횟수와 불량률의 상관계수 0.01, 접촉 저항 −0.10, 테스트 시간 −0.005, 온도 편차 0.91. 후반기 TEST_03/TH_B 불량률은 제품과 무관하게 6.4~6.5%.');
-  L.push(`[현재 화면 상태] 설비 필터=${st.eq}, 지표=${M[st.met].label}, 표시 헤드=${[...st.heads].join(',')}, 지도 기간=${st.per}.`);
-  return L.join('\n')+'\n'+EXTRA;
-}
-const EXTRA = `
-[설비 이력(TEST_설비이력_202608.csv) 요약 — 작업자 이름은 제외, 시각은 2026년]
-- 8/02 00:15 TEST_03/TH_A PnP Pick-up 진공 에러로 정지, 픽커 티칭 재확인·진공 센서 필터 청소 후 04:10 복구.
-- 8/02 09:50 TEST_03/TH_B 주간 점검(소크 온도 확인, 소켓 오염): PASS.
-- 8/04 03:00 TEST_01/TH_C 접촉저항(Rc) 체크 93mΩ(spec 95, 경계) → 정기PM을 8/6에서 8/4로 당김.
-- 8/04 TEST_01 TH_C·TH_B 정기PM(컨택터 클리닝, Pick-up tip·Socket·Pogo pin kit 교체, Golden unit 20ea 상관 확인) PASS. PM 후 TH_C Rc 78mΩ.
-- 8/05 TEST_02/TH_C 정기PM(Socket, Pogo pin kit 교체; Pick-up tip은 재고 없어 이월).
-- 8/06 TEST_02/TH_A VACUUM PRESSURE LOW 알람, 진공 라인 피팅 재체결·leak check 정상. 8/12 후속 점검 정상.
-- 8/07 TEST_01/TH_B 히터 PID 확인(soak 안정화 시간 소폭 증가 경향) 정상, PM 직후 경향으로 판단.
-- 8/10 TEST_02/TH_B 온도센서 offset 점검 정상.
-- 8/11 TEST_03/TH_A 정기PM PASS. 8/13 TEST_01/TH_A 정기PM PASS. 8/15 TEST_02/TH_A 정기PM PASS.
-- 8/13 11:40~14:40 TEST_03/TH_B 정기PM(Pick-up tip, Socket(8/12 입고분), Pogo pin kit 교체) PASS. PM 후 soak 안정화 시간 180s→210s로 약간 길어졌으나 spec 내라 조치하지 않음.
-- 8/16 23:48~8/17 00:02 TEST_03/TH_B: SOAK TEMP DEVIATION warn(22:31, 22:57) 조치로 온도 auto calibration 실행, warn 해제. lot 대기 중이라 cal 전 offset 값을 백업하지 못함.
-- 8/17 09:00 TEST_02 전체 헤드: TP_B07 Rev.14→Rev.15 적용(Idd standby limit +2% 보정). 첫 lot 상관 in-spec.
-- 8/17 12:05~15:40 TEST_03/TH_B 비정기 점검(Rc, 히터·칠러, 소켓 오염): 이상 없음, Release. 점검 후에도 soak 온도가 설정 대비 +2℃ 수준으로 동일. 파트장 보고 후 진행 결정. auto cal 전후 값 비교 필요.
-- 8/19 TEST_01/TH_B 픽커 흡착패드 교체(마모). 8/20 TEST_01/TH_C TEST HEAD DOCKING ERROR 1회, 재체결 후 정상(8/21 재발 없음 확인).
-- 8/21 TEST_02/TH_C 포고핀 이물 IPA 클리닝, Rc PASS. 8/22 TEST_03/TH_A 소크 온도 매핑 정상. 8/23 TEST_02/TH_B 테스터 DPS 교정 확인 정상.
-- 8/25 TEST_03/TH_C 정기PM PASS. 8/26 TEST_02/TH_B DEVICE DROP ERROR, 픽커 티칭 재확인 후 정상.
-- 8/27 TEST_03/TH_B 주간 점검(Rc, 소켓 오염) PASS. soak 온도 UCL warn은 계속 발생(기존 건). cal 전 백업이 없어 비교 불가, 제조사 문의 예정.
-- 8/28 TEST_01/TH_B Rc 체크 PASS. 8/29 TEST_02/TH_B 정기PM PASS. 8/30 TEST_02/TH_A·TH_C Soak plate 교체(마모 한도), TH_C는 Pick-up tip도 교체. 8/31 TEST_01/TH_B 비전 카메라 렌즈 교체.
-
-[교대 인수인계(TEST_교대인수인계_202608.txt) 중 특이사항만 요약 — 기재가 없는 날은 "특이사항 없음"]
-- 8/03 TEST_01/TH_C Rc 경향 상승(계측 알림 4건) → 야간 93mΩ 확인.
-- 8/16 야간(03호기): TH_B SOAK TEMP DEVIATION warn 두 번(22:31, 22:57), lot 끊기는 타이밍에 온도 auto cal 실행, cal 전 offset 백업 못함. cal 이후 soak 온도가 높게 나옴(B07 기준 92 근처, 원래 90 근처), UCL warn은 뜨지만 I/L은 안 걸려 진행. 03B 온도 추이를 주간에 봐달라고 인계.
-- 8/17 주간: 03B 테스트 프로그램 4개 전부 설정값보다 +2℃ 정도 높고 lot마다 UCL warn. 새벽 lot D09_02 fail 78ea(7.8%), 다른 lot도 평소보다 많음. 12:05부터 점검, 파트장에게 구두 보고. 오후: 점검 정상이나 온도는 그대로(+2℃). 파트장이 spec 내면 진행·모니터링하자고 해 release. cal 전 값을 몰라 비교 불가, 휴가 중이던 담당자 복귀 후 확인 요청. 야간: warn 계속, I/L 안 걸려 진행.
-- 8/18: 전날 03B lot fail rate 평균 6%대(평소 2%대), 파트장 공유, 9/1 월간 리뷰 때 데이터 같이 보기로 함. cal 전 값 확인은 8/25 복귀 후. 오후·야간: 03B warn 계속(알람창이 다른 알람을 가림).
-- 8/19~8/23 03B 상태 동일, warn 계속(확인 누르고 진행). 8/24 03B warn 건이 일주일째인데 담당자 미정으로 보임.
-- 8/25 담당자 복귀, 03B 건 인계받음. 8/27 cal 전 offset 백업이 없어 비교 불가, 한울테크 통해 제조사 문의, 회신 대기. 8/31 제조사 회신 아직 없음, soak 온도 warn 여전히 발생.
-- 기타: 8/10 02:00~03:40 MES 서버 점검(수기 기록 12건, 입력 완료), 소켓 재고 8/12 9EA 입고 / 8/28 실사 소켓 4EA·픽커 팁 2EA·포고핀 kit 3EA, 월간 리뷰 9/1.
-
-[불량률 상승 원인에 대한 분석 결과 — 추정이며 확정이 아님]
-- 결론(추정): 8/16 심야 TEST_03/TH_B의 온도 auto calibration 이후 soak 온도 offset이 설정값보다 약 +2℃로 틀어진 것이 불량률 상승의 원인으로 보임.
-- 근거: (1) 대시보드 데이터에서 TEST_03/TH_B의 온도 편차와 불량률이 8/17부터 계단식으로 상승(불량률 2.37%→6.48%, 온도 편차 +0.02℃→+2.18℃), cal 종료(8/17 00:02) 시점과 일치. (2) 인수인계의 "+2℃", "fail 6%대"가 대시보드 수치와 일치. (3) 후반기 불량률이 4개 제품 모두 6.4~6.5%로 같아 제품·프로그램이 아닌 헤드의 온도 문제와 부합. (4) 온도 편차와 불량률 상관계수 0.91.
-- 배제된 후보: 8/17 점검에서 Rc·히터·칠러·소켓 오염 정상(점검 후에도 +2℃ 유지); TP_B07 Rev.15는 TEST_02에서만 적용되었고 TEST_02는 정상; 8/13 03B PM 후 soak 안정화 시간 증가(180s→210s)는 이후 8/13~16 불량률·온도 편차가 정상이라 직접 원인으로 보기 어려움.
-- 불확실성: warn이 cal 전(22:31, 22:57)에 먼저 떴으므로 cal 전부터 센서·히터 이상이 있었고 cal이 이를 잘못 보정했을 가능성도 있음. cal 전 offset 백업이 없어 cal 자체가 원인인지 구분할 수 없음. 8/16 저녁 lot 단위 온도 추이는 확인하지 않음.
-- 장기화 이유: warn이 매 lot마다 떴지만 I/L이 걸리지 않고 spec 내라는 이유로 확인만 누르고 진행했고, 담당자가 정해지지 않아 8/31까지 이어짐.
-`;
-const SYS='당신은 반도체 테스트 lot 대시보드의 데이터 분석 도우미입니다. 아래 자료만 근거로 한국어로 간결하게 답하세요. 자료는 [대시보드 데이터], [설비 이력], [교대 인수인계], [불량률 상승 원인에 대한 분석 결과]입니다. 근거가 되는 수치나 날짜, 출처(대시보드/설비 이력/인수인계)를 함께 제시하세요. 분석 결과는 추정이므로 확정처럼 말하지 말고, 자료에 없는 내용(예: cal 전 offset 값, 제조사 회신 내용, 자료에 없는 날짜의 사실)은 모른다고 답하세요. 자료 밖의 일반 지식으로 수치나 사실을 지어내지 마세요.\n\n[대시보드 데이터]\n';
-const chat=[]; let busy=false;
-function addMsg(cls,text){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=text; $('#msgs').appendChild(d); $('#msgs').scrollTop=$('#msgs').scrollHeight; return d; }
-async function send(q){
-  q=(q||$('#cQ').value).trim(); if(!q||busy) return;
-  const model=$('#cModel').value.trim(), base=$('#cBase').value.trim().replace(/\/+$/,''), key=$('#cKey').value.trim();
-  if(!model||!base||!key){ addMsg('e','model_name, base_url, api_key를 모두 입력해 주세요.'); $('#cfg').open=true; return; }
-  if(!/^https?:\/\//i.test(base)){ addMsg('e','base_url은 http:// 또는 https:// 로 시작해야 합니다.'); return; }
-  $('#cfg').open=false; $('#cQ').value=''; addMsg('u',q); chat.push({role:'user',content:q});
-  busy=true; $('#cSend').disabled=true; const wait=addMsg('a','답변 생성 중…');
-  const ac=new AbortController(), to=setTimeout(()=>ac.abort(),90000);
-  try{
-    const res=await fetch(base+'/chat/completions',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({model,messages:[{role:'system',content:SYS+buildContext()},...chat.slice(-12)]})});
-    const txt=await res.text(); let data; try{data=JSON.parse(txt);}catch(_){}
-    if(!res.ok) throw new Error(`HTTP ${res.status} ${(data&&(data.error&&data.error.message||data.message))||txt.slice(0,200)}`);
-    const ans=data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
-    if(!ans) throw new Error('응답 형식을 해석할 수 없습니다.');
-    wait.textContent=ans; chat.push({role:'assistant',content:ans});
-  }catch(err){
-    chat.pop(); wait.className='msg e';
-    wait.textContent=err.name==='AbortError'?'시간 초과(90초). 다시 시도해 주세요.':'요청 실패: '+err.message+(err instanceof TypeError?' (네트워크 또는 CORS 차단일 수 있습니다. base_url과 서버의 CORS 허용 여부를 확인하세요.)':'');
-  }finally{ clearTimeout(to); busy=false; $('#cSend').disabled=false; $('#msgs').scrollTop=$('#msgs').scrollHeight; }
-}
-$('#cSend').onclick=()=>send();
-$('#cQ').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); send(); } });
-['불량률이 가장 높은 설비·헤드는?','TEST_03/TH_B는 언제부터 이상인가?','온도 편차와 불량률은 어떤 관계인가?'].forEach(q=>{
-  const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=q; b.onclick=()=>send(q); $('#sugg').appendChild(b); });
-
-// ---- 초기화 ----
-chips($('#fEq'), [{k:'ALL',l:'전체'},...EQS.map(e=>({k:e,l:e}))], k=>st.eq===k, k=>{st.eq=k; renderChart();});
-chips($('#fMet'), [{k:'f',l:'불량률'},{k:'t',l:'온도 편차'},{k:'c',l:'접촉 저항'},{k:'j',l:'jam'}], k=>st.met===k, k=>{st.met=k; renderChart();});
-chips($('#fHead'), HEADS.map(h=>({k:h,l:h})), k=>st.heads.has(k), k=>{ st.heads.has(k)? (st.heads.size>1&&st.heads.delete(k)) : st.heads.add(k); renderChart(); }, k=>COL[k]);
-chips($('#fPer'), [{k:'all',l:'전체'},{k:'pre',l:'8/1~8/16'},{k:'post',l:'8/17~8/31'}], k=>st.per===k, k=>{st.per=k; renderHeat();});
-$('#tblBtn').onclick=()=>{ st.table=!st.table; $('#tblBtn').setAttribute('aria-pressed',st.table); $('#tblBtn').textContent=st.table?'그래프로 보기':'표로 보기'; renderChart(); };
-$('#theme').onclick=()=>{ document.documentElement.dataset.theme=isDark()?'light':'dark'; renderChart(); renderHeat(); };
-let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(renderChart,100); });
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{renderHeat();});
-renderTop(); renderChart(); renderHeat(); renderBars(); renderCombo(); renderIns();
+$("cb-form").onsubmit=e=>{e.preventDefault();ask($("cb-q").value);};
+$("cb-q").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();ask($("cb-q").value);}};
+$("cb-clear").onclick=()=>{hist=[];$("cb-log").innerHTML="";addMsg("bot","대화를 지웠습니다.");};
+summary();kpis();chips();heat();c1();c2();table();acts();
 </script>
 </body>
 </html>
